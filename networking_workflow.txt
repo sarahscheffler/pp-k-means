@@ -1,0 +1,37 @@
+Workflow:
+
+Network connection:
+1. Server creates socket ( socket() )
+2. Server specifies IP addr, port ( bind() )
+3. Server begins listening for clients ( listen() - blocks until accept happens)
+4. Client creates socket ( socket() )
+5. Client connects to server's specified IP addr, port ( connect() )
+6. Server (probably) accepts client's connection ( accept() )
+7. Client writes ( write() )
+8. Server reads ( read() )
+9. Server does something with the info it just got from client
+10. Server replies ( write() )
+11. Client reads response ( read() )
+12. Maybe do that more than once
+13. Client closes connection which will cause server to read 0 ( close() )
+14. Server sees that read() returns 0 and goes back to listening for more clients
+
+Server steps:
+1. Listen and collect client info until a set of clients reach an agreement on DataManager
+2. When the clients have agreement, randomly select inital means, order, and keys
+3. Loop until stopping criterion met
+	4. Publish e, order, means
+	5. Send MPAForward to first client in order
+	6. Listen for P1 to give MPABackward in return
+	7. Run decryption, check against stopping criterion
+
+Client steps:
+1. Initialize and set DataManager
+2. Connect to server and wait for protocol to begin
+3. Listen to server for order, means, enc key
+4. Listen to preceeding client for input to MPAForward
+5. Do MPAForward and send result to succeeding client
+6. Listen to succeeding client for input to MPABackward
+7. Do MPABackward and send result to preceeding client
+8. Listen to server for next set of order, means, enc key (or COMPLETE)
+
