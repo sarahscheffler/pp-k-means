@@ -23,30 +23,32 @@ print "starting ", procNumber, totalProcs
 def getAddShares(input):
 	if procNumber > 0 :
 		print "Received ", broadSockets[0].recv()
-		return
 
 		resp = repSocket.recv()
+		print "received from repSocket", resp
 
         # multiply encrypted input by waht we just got
-		reqSocket.send(genericData)
-		resp = reqSocket.recv()
+		if procNumber < (totalProcs-1):
+			reqSocket.send(genericData)
+			resp = reqSocket.recv()
+			print "received from reqSocket", resp
 
         #select a random share 
-		broadSockets[0].send( genericData) # send share back to p1
+		broadSockets[0].send(genericData) # send share back to p1
 		repSocket.send(genericData); #send something backwards
 
-		resp = broadSockets[0].recv()
+		resp = broadSockets[0].recv() #receive shares
 	else :
     	#send public key e to all parties
 		for i in range(totalProcs-1):
 			broadSockets[i].send(genericData)
-		return
 
 		reqSocket.send(genericData) #send encrypted x1
 
 		for i in range(totalProcs-1):
 			resp =  broadSockets[i].recv() # collect all the shares
-		res = s_recv(reqSocket)
+			print "received from socket", i, "share ", resp
+		resp = reqSocket.recv()
         #now compute its own share. We know all shares now
 
 		for i in range(totalProcs-1):
@@ -69,7 +71,6 @@ else:
 		broadSockets.append(context.socket(zmq.REQ))
 		broadSockets[i-1].connect(clientPrefix + str(broadcastPort + i))
 
-time.sleep(2)
 getAddShares(0)
 
 # reqSocket.unbind()
