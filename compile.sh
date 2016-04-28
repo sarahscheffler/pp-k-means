@@ -1,0 +1,1 @@
+g++ -o node node.cpp -L/usr/local/lib -lzmq

@@ -1,4 +1,0 @@
-Useful websites:
-
-http://vichargrave.com/network-programming-design-patterns-in-c/
-
