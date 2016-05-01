@@ -5,11 +5,9 @@ from random import *
 import pickle
 
 securityParameter = 64
-verbose = True
+verbose = False
 
 def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, requestSocket, broadSockets = None):
-    shares = [0 for i in range(totalProcs)]
-    
     if procNumber > 0:    #Process is NOT leader
         publicKey = pickle.loads(leaderSocket.recv())
         n = publicKey.n
@@ -30,11 +28,13 @@ def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, reque
         leaderSocket.send(str(share)) # send share back to p1
         backMessage = mod_exp(forwardMessage,mod_inv(share,n),(n*n))
         replySocket.send(str(backMessage)); #send something backwards
-        shares = pickle.loads(leaderSocket.recv())    # receive shares
+        prod = int(leaderSocket.recv())    # receive shares
+        leaderSocket.send("")
         if verbose:
-            print "Process", procNumber, ":", "Received from Leader : Shares"
+            print "Process", procNumber, ":", "Received from Leader : ", prod
     
     else:            #Leader Process
+        shares = [0 for i in range(totalProcs)]
         privateKey, publicKey = generate_keypair(securityParameter)
         #send public key to all parties
         for i in range(totalProcs-1):
@@ -47,9 +47,13 @@ def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, reque
         resp = int(requestSocket.recv())
         if verbose:
             print "Process", procNumber, ":", "Received from Process 1 :", resp
-        shares[0] = decrypt(privateKey, publicKey, resp)
+
+        prod = decrypt(privateKey, publicKey, resp)
+        for i in range(1,totalProcs):
+            prod = (prod * shares[i]) % publicKey.n
 
         for i in range(totalProcs-1):
-            broadSockets[i].send(pickle.dumps(shares)); #send all shares
+            broadSockets[i].send(str(prod)); #send product
+            broadSockets[i].recv()
         #resp=s_recv(broadSockets[i]);  receive acknowledgement
-    return shares, publicKey
+    return prod
