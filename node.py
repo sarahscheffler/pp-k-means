@@ -3,7 +3,7 @@ import sys
 import zmq
 
 from getAddShares import *
-from paillier.paillier import *
+#from paillier.paillier import *
 from modular import *
 from random import *
 from means import *
@@ -30,7 +30,7 @@ if len(sys.argv)>3:
 context = zmq.Context()
 requestSocket = context.socket(zmq.REQ)
 replySocket = context.socket(zmq.REP)
-kmeans = KMeans(clusters, "data/k-means/"+str(procNumber)+".in")
+kmeans = KMeans(clusters, "data/horizontal-k-means/"+str(procNumber)+".in")
 dimensions = kmeans.getDims()
 
 requestSocket.connect(clientPrefix + str(basePort+procNumber+1))
@@ -45,7 +45,7 @@ else:
         broadSockets.append(context.socket(zmq.REQ))
         broadSockets[i-1].connect(clientPrefix + str(broadcastPort+i))
 
-for iteration in range(20): # iterate 20 times for now
+for iteration in range(10): # iterate 20 times for now
     centroids = kmeans.getClusterCentroids()
     newMeans = []
     for centroid, num in centroids:
@@ -59,8 +59,8 @@ for iteration in range(20): # iterate 20 times for now
             num = getAddShares(procNumber, totalProcs, val[i], leaderSocket, replySocket, requestSocket, broadSockets)
             newVal.append(num / (1.0 * denom))
         newMeans.append(DataPoint(dimensions, newVal))
-    if verbose:
-        print "Process ", procNumber, "iteration: ", iteration, "k means: ", kmeans
+    if verbose and not procNumber:
+        print "[Process", str(procNumber)+"] iteration :", iteration, "centroids :", kmeans
     kmeans.updateMeans(newMeans)
 
 # requestSocket.unbind()

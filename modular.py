@@ -41,3 +41,7 @@ def generate_share(n):
     while egcd(ret,n)[0] != 1:
         ret = randint(1,n-1)
     return ret
+
+class prettyfloat(float):
+    def __repr__(self):
+        return "%0.2f" % self

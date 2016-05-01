@@ -17,7 +17,7 @@ def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, reque
         if verbose:
             print "Process", procNumber, ":", "Received from Process", procNumber-1, ":", resp
         # multiply encrypted input by what we just received
-        forwardMessage = (resp*encrypt(publicKey,value)) % (n*n)
+        forwardMessage = (resp*encrypt(publicKey,(value%n))) % (n*n)
         if procNumber < (totalProcs-1):
             requestSocket.send(str(forwardMessage))
             forwardMessage = int(requestSocket.recv())
