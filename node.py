@@ -1,6 +1,7 @@
 import time
 import sys
 import zmq
+from means import KMeans
 
 clientPrefix="tcp://localhost:";
 serverPrefix="tcp://*:";
