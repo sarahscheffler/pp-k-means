@@ -4,7 +4,7 @@ from random import *
 
 import pickle
 
-securityParameter = 64
+securityParameter = 128
 verbose = False
 
 def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, requestSocket, broadSockets = None):
@@ -36,10 +36,11 @@ def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, reque
     else:            #Leader Process
         shares = [0 for i in range(totalProcs)]
         privateKey, publicKey = generate_keypair(securityParameter)
+        n = publicKey.n
         #send public key to all parties
         for i in range(totalProcs-1):
             broadSockets[i].send(pickle.dumps(publicKey))
-        requestSocket.send(str(encrypt(publicKey,value))) #send encrypted x0
+        requestSocket.send(str(encrypt(publicKey,(value%n)))) #send encrypted x0
         for i in range(totalProcs-1):
             shares[i+1] =  int(broadSockets[i].recv()) # collect all the shares
             if verbose:
@@ -50,10 +51,13 @@ def getAddShares(procNumber, totalProcs, value, leaderSocket, replySocket, reque
 
         prod = decrypt(privateKey, publicKey, resp)
         for i in range(1,totalProcs):
-            prod = (prod * shares[i]) % publicKey.n
-
+            prod = (prod * shares[i]) % n
+        
         for i in range(totalProcs-1):
             broadSockets[i].send(str(prod)); #send product
             broadSockets[i].recv()
         #resp=s_recv(broadSockets[i]);  receive acknowledgement
+    if prod > n/2:
+        prod = prod-n
+        #print prod
     return prod

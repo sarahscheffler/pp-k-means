@@ -8,7 +8,7 @@ def datagen(numProcs=5, numClusters=4, numPoints=10, dim=1):
         procData = []
         mean = [randint(1,dataRange) for i in range(dim)]
         print mean
-        var = sqrt(dim)*dataRange/(numPoints)**(6/2)
+        var = sqrt(dim)*dataRange
         variance = lambda : triangular(0.5*var, 1.5*var)
         for i in range(numPoints):
             data.append([int(gauss(mean[j],variance())) for j in range(dim)])

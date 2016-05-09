@@ -60,7 +60,7 @@ for iteration in range(10): # iterate 20 times for now
             newVal.append(num / (1.0 * denom))
         newMeans.append(DataPoint(dimensions, newVal))
     if verbose and not procNumber:
-        print "[Process", str(procNumber)+"] iteration :", iteration, "centroids :", kmeans
+        print "[Process", str(procNumber)+"] iteration", iteration, ":", kmeans
     kmeans.updateMeans(newMeans)
 
 # requestSocket.unbind()
