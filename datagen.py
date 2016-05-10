@@ -1,5 +1,7 @@
 from random import *
 from math import *
+import sys
+import os
 
 def datagen(numProcs=5, numClusters=4, numPoints=10, dim=1):
     data = []
@@ -16,15 +18,19 @@ def datagen(numProcs=5, numClusters=4, numPoints=10, dim=1):
     ## Clear Data Files
     for procNumber in range(numProcs):
         datafile = "data/horizontal-k-means/"+str(procNumber)+".in"
+        if os.path.exists(datafile):
+            os.remove(datafile)
         f = open(datafile, 'w')
         f.close()
     
     ## Randomly Partition data horizontally
     for dataPoint in data:
-        procNumber = randint(0,numProcs-1)
+        procNumber = randint(0,numProcs)
         datafile = "data/horizontal-k-means/"+str(procNumber)+".in"
         f = open(datafile, 'a')
         f.write("%s\n" % dataPoint)
         f.close()
 
-datagen(5, 4, 30, 2)
+dataSize = int(sys.argv[1])
+numProcs = int(sys.argv[2])
+datagen(numProcs, 4, dataSize, 2)

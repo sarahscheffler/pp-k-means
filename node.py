@@ -19,13 +19,13 @@ basePort = 8000
 broadcastPort = 9000
 broadSockets=[]
 leaderSocket = None
-verbose = True
+verbose = False
 
 procNumber = int(sys.argv[1])
 totalProcs = int(sys.argv[2])
 if len(sys.argv)>3:
     basePort = int(sys.argv[3])
-    broadcastPort = basePort + 10
+    broadcastPort = basePort + 100
 
 context = zmq.Context()
 requestSocket = context.socket(zmq.REQ)
@@ -36,6 +36,7 @@ dimensions = kmeans.getDims()
 requestSocket.connect(clientPrefix + str(basePort+procNumber+1))
 replySocket.bind(serverPrefix + str(basePort+procNumber))
 
+startTime = time.time()
 if procNumber > 0:
     leaderSocket = context.socket(zmq.REP)
     leaderSocket.bind(serverPrefix + str(broadcastPort+procNumber))
@@ -62,6 +63,10 @@ for iteration in range(10): # iterate 20 times for now
     if verbose and not procNumber:
         print "[Process", str(procNumber)+"] iteration", iteration, ":", kmeans
     kmeans.updateMeans(newMeans)
+
+endTime = time.time()
+if procNumber==0:
+    print "Runtime: "+str(endTime-startTime)
 
 # requestSocket.unbind()
 # replySocket.disconnect()
