@@ -1,10 +1,12 @@
 from datapoint import DataPoint
+verbose = False
 
 class KMeans:
 
     def __init__(self, k, inputFile):
         self.dataPoints = []
-        print inputFile
+        if verbose:
+            print inputFile
         f = open(inputFile, 'r')
         for line in f:
             val = eval(line)

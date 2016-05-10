@@ -23,8 +23,10 @@ verbose = True
 
 procNumber = int(sys.argv[1])
 totalProcs = int(sys.argv[2])
+clusters = int(sys.argv[3])
+iters = int(sys.argv[4])
 if len(sys.argv)>3:
-    basePort = int(sys.argv[3])
+    basePort = int(sys.argv[5])
     broadcastPort = basePort + 10
 
 context = zmq.Context()
@@ -45,7 +47,8 @@ else:
         broadSockets.append(context.socket(zmq.REQ))
         broadSockets[i-1].connect(clientPrefix + str(broadcastPort+i))
 
-for iteration in range(10): # iterate 20 times for now
+timing = [time.time()]
+for iteration in range(iters): # iterate 20 times for now
     centroids = kmeans.getClusterCentroids()
     newMeans = []
     for centroid, num in centroids:
@@ -62,6 +65,12 @@ for iteration in range(10): # iterate 20 times for now
     if verbose and not procNumber:
         print "[Process", str(procNumber)+"] iteration", iteration, ":", kmeans
     kmeans.updateMeans(newMeans)
+    timing.append(time.time())
+
+if not procNumber:
+    results = [float("%0.2f" % (timing[i+1]-timing[i])) for i in range(len(timing)-1)]
+    print results
+    print sorted(results)[len(results)/2]
 
 # requestSocket.unbind()
 # replySocket.disconnect()

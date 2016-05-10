@@ -1,9 +1,15 @@
 #!/bin/perl
-my $k = 5;
-my $port = 5300;
-print "Generating Data ...\n";
-system("python datagen.py &");
-for (my $i=0; $i<$k; $i++) {
+my $numProcs = 5;
+my $numClusters = 4;
+my $numPoints = 100;
+my $dim = 3;
+my $iters = 10;
+my $port = 5400;
+
+print "Generating Data ...";
+system("python datagen.py $numProcs $numClusters $numPoints $dim &");
+print " Done\n";
+for (my $i=0; $i<$numProcs; $i++) {
 	print "Starting $i\n";
-	system("python node.py $i $k $port &");
+	system("python node.py $i $numProcs $numClusters $iters $port &");
 }
